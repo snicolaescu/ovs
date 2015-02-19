@@ -21,7 +21,7 @@ fi
 export DOCKER_HOST=$DEPLOY_DOCKER_HOST
 
 # Get the currently running app instance.
-APP_INSTANCE=`docker ps | grep -wo " ovs" | cut -d" " -f 2`
+APP_INSTANCE=`docker ps | grep -wo " $REPO_NAME" | cut -d" " -f 2`
 
 # If one instance found, bounce it.
 if [ ! -z "$APP_INSTANCE" -a "$APP_INSTANCE" != "" -a "$APP_INSTANCE" != " " ]; then
