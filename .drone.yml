@@ -1,5 +1,28 @@
-image: bradrydzewski/python:2.7
+image: itomaldonado/python:2.7.9
+env:
+    - REPO_NAME=`echo $DRONE_BUILD_DIR| cut -d'/' -f 8`
 script:
-    - pip install -r requirements.txt --use-mirrors
+    - pip install -q -r requirements.txt
     - python -m py_compile app.py
     - python -m unittest discover ./test/
+publish:
+    docker:
+        image_name: $$username/$REPO_NAME
+        docker_host: $$docker_host
+        registry_login: true
+        username: $$username
+        password: $$password
+        email: $$email
+        branch: master
+        push_latest: true
+        tag: latest
+        keep_builds: false
+deploy:
+    bash:
+        script:
+        - chmod 777 ./deploy/deploy.sh
+        - ./deploy/deploy.sh
+notify:
+    email:
+        recipients:
+            - $$email
