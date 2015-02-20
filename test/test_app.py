@@ -87,6 +87,30 @@ class OVSTest(unittest.TestCase):
         json_result = json.loads(result.data)
         assert 400 == result.status_code and 'error' in json_result and 'due date is too early' == json_result['error']
 
+    def test_invalid_state(self):
+        # FL
+        new_order = self.template_order.copy()
+        new_order['state'] = 'FL'
+        order = json.dumps(new_order)
+        result = self.applications.post('/ovs/orders', content_type='application/json', data=order)
+        json_result = json.loads(result.data)
+        assert 400 == result.status_code and 'error' in json_result and 'state not in service' == json_result['error']
+
+        # CA
+        new_order = self.template_order.copy()
+        new_order['state'] = 'CA'
+        order = json.dumps(new_order)
+        result = self.applications.post('/ovs/orders', content_type='application/json', data=order)
+        json_result = json.loads(result.data)
+        assert 400 == result.status_code and 'error' in json_result and 'state not in service' == json_result['error']
+
+        # TX
+        new_order = self.template_order.copy()
+        new_order['state'] = 'TX'
+        order = json.dumps(new_order)
+        result = self.applications.post('/ovs/orders', content_type='application/json', data=order)
+        json_result = json.loads(result.data)
+        assert 400 == result.status_code and 'error' in json_result and 'state not in service' == json_result['error']
 
 
 

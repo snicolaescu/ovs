@@ -8,7 +8,7 @@ server = Flask(__name__)
 # In-memory Databases - Dynamic Dictionaries
 orders = dict()
 products = ['FiOS','SONET', 'VOD']
-bad_states = []
+bad_states = ['CA', 'FL', 'TX']
 
 
 ##########################
@@ -100,6 +100,11 @@ def order_field_validation(order={}):
     if not valid:
         return valid, error
 
+    # Check bad states
+    valid,error = validate_states(order=order)
+    if not valid:
+        return valid, error
+
     # If all validation passes, return true.
     return True, ''
 
@@ -118,6 +123,12 @@ def validate_due_date(order={}):
     else:
         return True, ''
 
+# Check if the state is not part of the bad states
+def validate_states(order={}):
+    if order['state'] in bad_states:
+        return False, 'state not in service'
+    else:
+        return True, ''
 
 
 if __name__ == '__main__':
