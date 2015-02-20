@@ -70,6 +70,26 @@ class OVSTest(unittest.TestCase):
         json_result = json.loads(result.data)
         assert 400 == result.status_code and 'error' in json_result and 'order is empty' == json_result['error']
 
+    def test_invalid_due_date(self):
+        # Right now
+        new_order = self.template_order.copy()
+        new_order['dueDate'] = datetime.now().strftime("%m/%d/%Y")
+        order = json.dumps(new_order)
+        result = self.applications.post('/ovs/orders', content_type='application/json', data=order)
+        json_result = json.loads(result.data)
+        assert 400 == result.status_code and 'error' in json_result and 'due date is too early' == json_result['error']
+
+        # 2 days from now
+        new_dueDate = datetime.now() + timedelta(days=2)
+        new_order['dueDate'] = datetime.now().strftime("%m/%d/%Y")
+        order = json.dumps(new_order)
+        result = self.applications.post('/ovs/orders', content_type='application/json', data=order)
+        json_result = json.loads(result.data)
+        assert 400 == result.status_code and 'error' in json_result and 'due date is too early' == json_result['error']
+
+
+
+
 
 suite = unittest.TestLoader().loadTestsFromTestCase(OVSTest)
 unittest.TextTestRunner(verbosity=2).run(suite)
