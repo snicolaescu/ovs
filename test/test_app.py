@@ -113,6 +113,64 @@ class OVSTest(unittest.TestCase):
         assert 400 == result.status_code and 'error' in json_result and 'state not in service' == json_result['error']
 
 
+    def test_invalid_zipcodes(self):
+        # 4 digits
+        new_order = self.template_order.copy()
+        new_order['zipcode'] = '0000'
+        order = json.dumps(new_order)
+        result = self.applications.post('/ovs/orders', content_type='application/json', data=order)
+        json_result = json.loads(result.data)
+        assert 400 == result.status_code and 'error' in json_result and 'invalid zipcode' == json_result['error']
+
+        # under the max
+        new_order = self.template_order.copy()
+        new_order['zipcode'] = '00600'
+        order = json.dumps(new_order)
+        result = self.applications.post('/ovs/orders', content_type='application/json', data=order)
+        json_result = json.loads(result.data)
+        assert 400 == result.status_code and 'error' in json_result and 'invalid zipcode' == json_result['error']
+
+        # Over the max
+        new_order = self.template_order.copy()
+        new_order['zipcode'] = '99951'
+        order = json.dumps(new_order)
+        result = self.applications.post('/ovs/orders', content_type='application/json', data=order)
+        json_result = json.loads(result.data)
+        assert 400 == result.status_code and 'error' in json_result and 'invalid zipcode' == json_result['error']
+
+        # 6 digits
+        new_order = self.template_order.copy()
+        new_order['zipcode'] = '999999'
+        order = json.dumps(new_order)
+        result = self.applications.post('/ovs/orders', content_type='application/json', data=order)
+        json_result = json.loads(result.data)
+        assert 400 == result.status_code and 'error' in json_result and 'invalid zipcode' == json_result['error']
+
+        # zip+4
+        new_order = self.template_order.copy()
+        new_order['zipcode'] = '00000-0000'
+        order = json.dumps(new_order)
+        result = self.applications.post('/ovs/orders', content_type='application/json', data=order)
+        json_result = json.loads(result.data)
+        assert 400 == result.status_code and 'error' in json_result and 'no support for zip+4' == json_result['error']
+
+        # zip+4 no dash
+        new_order = self.template_order.copy()
+        new_order['zipcode'] = '000000000'
+        order = json.dumps(new_order)
+        result = self.applications.post('/ovs/orders', content_type='application/json', data=order)
+        json_result = json.loads(result.data)
+        assert 400 == result.status_code and 'error' in json_result and 'no support for zip+4' == json_result['error']
+
+        # not only numbers
+        new_order = self.template_order.copy()
+        new_order['zipcode'] = '09asd'
+        order = json.dumps(new_order)
+        result = self.applications.post('/ovs/orders', content_type='application/json', data=order)
+        json_result = json.loads(result.data)
+        assert 400 == result.status_code and 'error' in json_result and 'US zipcodes only contain digits' == json_result['error']
+
+
 
 
 suite = unittest.TestLoader().loadTestsFromTestCase(OVSTest)

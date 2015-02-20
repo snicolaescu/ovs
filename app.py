@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request, abort, make_response, render_template
 from datetime import datetime, timedelta
-import uuid
+import uuid, re
 
 # Flask light-weight web server.
 server = Flask(__name__)
@@ -105,6 +105,11 @@ def order_field_validation(order={}):
     if not valid:
         return valid, error
 
+    # Check bad zipcodes
+    valid,error = validate_zipcodes(order=order)
+    if not valid:
+        return valid, error
+
     # If all validation passes, return true.
     return True, ''
 
@@ -127,6 +132,19 @@ def validate_due_date(order={}):
 def validate_states(order={}):
     if order['state'] in bad_states:
         return False, 'state not in service'
+    else:
+        return True, ''
+
+# Check if the zipcode is valid
+def validate_zipcodes(order={}):
+    if re.match(r'(^[0-9]{5}-?[0-9]{4})$', order['zipcode']):
+        return False, 'no support for zip+4'
+    elif not re.match(r'^[0-9]+$', order['zipcode']):
+        return False,'US zipcodes only contain digits'
+    elif (not re.match('^[0-9]{5}$',order['zipcode']))\
+            or (int(order['zipcode']) < 601)\
+            or (int(order['zipcode']) > 99950):
+        return False,'invalid zipcode'
     else:
         return True, ''
 
